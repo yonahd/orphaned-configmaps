@@ -1,2 +1,46 @@
-# orphaned-configmaps
-A script for finding orphaned configmaps
+# Orphaned ConfigMaps
+
+This repository contains a script to identify orphaned ConfigMaps in a Kubernetes namespace. Orphaned ConfigMaps are those that are not referenced by any active Pods or containers within the namespace.
+
+## Prerequisites
+
+Before running the script, make sure you have the following prerequisites installed:
+
+- Python 3.x
+- `pip` package installer
+
+## Installation
+
+1. Clone this repository to your local machine:
+
+   ```shell
+   git clone https://github.com/your-username/orphaned-configmaps.git
+   ```
+2. Change into the repository directory:
+   ```shell
+   cd orphaned-configmaps
+   ```
+3. Install the required Python dependencies:
+   python orphaned_configmaps.py <namespace>
+
+## Usage
+
+To run the script, execute the following command:
+   ```shell
+   python orphaned_configmaps.py <namespace>
+   ```
+Replace <namespace> with the name of the Kubernetes namespace you want to scan for orphaned ConfigMaps. Make sure you have the necessary permissions to access the Kubernetes cluster.
+
+The script will display a table of orphaned ConfigMaps, if any are found.
+
+## Example output
+```shell
+
+                           Unused Config Maps                           
+┏━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃  # ┃ Config Map Name                                                 ┃
+┡━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│  1 │ unused-configmap-1                                              │
+│  2 │ super-important-configmap                                       │
+└────┴─────────────────────────────────────────────────────────────────┘
+  ```
