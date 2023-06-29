@@ -23,7 +23,7 @@ Before running the script, make sure you have the following prerequisites instal
 3. Install the required Python dependencies:
    ```shell
    pip install -r requirements.txt
-   ```>
+   ```
 
 ## Usage
 
