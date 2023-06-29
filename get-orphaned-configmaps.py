@@ -1,5 +1,6 @@
 from kubernetes import client, config
 import sys
+import argparse
 from rich.table import Table
 from rich.console import Console
 
@@ -50,11 +51,11 @@ def calculate_difference(used_configmaps, configmap_names):
     return sorted(set(configmap_names) - set(used_configmaps))
 
 
-def format_output(configmap_names):
+def format_output(namespace, configmap_names):
     if not configmap_names:
-        return "No unused config maps found."
+        return f"No unused config maps found in the namespace: {namespace}"
 
-    table = Table(show_header=True, header_style="bold", title="Unused Config Maps")
+    table = Table(show_header=True, header_style="bold", title=f"Unused Config Maps in Namespace: {namespace}")
     table.add_column("#", justify="right")
     table.add_column("Config Map Name")
 
@@ -64,16 +65,9 @@ def format_output(configmap_names):
     return table
 
 
-def main(namespace):
-    # Load the Kubernetes configuration
-    config.load_kube_config()
-
-    # Create Kubernetes API client
-    api_instance = client.CoreV1Api()
-
-    # Retrieve volumes and environment information
-    volumesCM, volumesProjectedCM, envCM, envFromCM, envFromContainerCM = retrieve_volumes_and_env(api_instance,
-                                                                                                   namespace)
+def process_namespace(api_instance, namespace):
+    # Retrieve volumes and environment information for the namespace
+    volumesCM, volumesProjectedCM, envCM, envFromCM, envFromContainerCM = retrieve_volumes_and_env(api_instance, namespace)
 
     # Remove duplicates and sort the lists
     volumesCM = sorted(set(volumesCM))
@@ -82,26 +76,44 @@ def main(namespace):
     envFromCM = sorted(set(envFromCM))
     envFromContainerCM = sorted(set(envFromContainerCM))
 
-    # Retrieve config map names
+    # Retrieve config map names for the namespace
     configmap_names = retrieve_configmap_names(api_instance, namespace)
 
     # Calculate the difference between the two sets of names
     used_configmaps = volumesCM + volumesProjectedCM + envCM + envFromCM + envFromContainerCM
     diff = calculate_difference(used_configmaps, configmap_names)
 
-    # Format and print the output
-    output = format_output(diff)
-    console = Console()
-    console.print(output)
+    # Format and return the output for the namespace
+    return format_output(namespace, diff)
+
+
+def main(namespace):
+    # Load the Kubernetes configuration
+    config.load_kube_config()
+
+    # Create Kubernetes API client
+    api_instance = client.CoreV1Api()
+
+    if namespace:
+        # Process a specific namespace
+        output = process_namespace(api_instance, namespace)
+        console = Console()
+        console.print(output)
+    else:
+        # Process all namespaces
+        namespaces = api_instance.list_namespace()
+
+        for ns in namespaces.items:
+            namespace_name = ns.metadata.name
+            output = process_namespace(api_instance, namespace_name)
+            console = Console()
+            console.print(output)
+            console.print("\n")
 
 
 if __name__ == "__main__":
-    # Check if the namespace is provided as a command-line argument
-    if len(sys.argv) < 2:
-        print("Please provide the namespace as a command-line argument.")
-        sys.exit(1)
+    parser = argparse.ArgumentParser(description="Identify orphaned ConfigMaps in a Kubernetes namespace.")
+    parser.add_argument("-n", "--namespace", help="Specify the namespace to scan for orphaned ConfigMaps.")
+    args = parser.parse_args()
 
-    # Retrieve the namespace from the command-line argument
-    namespace = sys.argv[1]
-    main(namespace)
-
+    main(args.namespace)
