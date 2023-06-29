@@ -25,18 +25,24 @@ Before running the script, make sure you have the following prerequisites instal
 
 ## Usage
 
-To run the script, execute the following command:
+To get unused configmaps in the whole cluster, execute the following command:
    ```shell
-   python orphaned_configmaps.py <namespace>
+   python orphaned_configmaps.py 
+   ```
+
+To get unused configmaps in a single namespace, execute the following command:
+   ```shell
+   python orphaned_configmaps.py -n <namespace>
    ```
 Replace <namespace> with the name of the Kubernetes namespace you want to scan for orphaned ConfigMaps. Make sure you have the necessary permissions to access the Kubernetes cluster.
+
 
 The script will display a table of orphaned ConfigMaps, if any are found.
 
 ## Example output
 ```shell
 
-                           Unused Config Maps                           
+         Unused Config Maps in Namespace: my-namespace         
 ┏━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 ┃  # ┃ Config Map Name                                                 ┃
 ┡━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
