@@ -21,7 +21,9 @@ Before running the script, make sure you have the following prerequisites instal
    cd orphaned-configmaps
    ```
 3. Install the required Python dependencies:
-   python orphaned_configmaps.py <namespace>
+   ```shell
+   pip install -r requirements.txt
+   ```>
 
 ## Usage
 
