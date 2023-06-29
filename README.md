@@ -50,3 +50,6 @@ The script will display a table of orphaned ConfigMaps, if any are found.
 │  2 │ super-important-configmap                                       │
 └────┴─────────────────────────────────────────────────────────────────┘
   ```
+
+## Caveat 
+The script looks at pods and containers, so if you are consuming it in a deployment that is scaled to 0 it will not be detected. 
