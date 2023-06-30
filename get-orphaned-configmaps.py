@@ -1,5 +1,4 @@
 from kubernetes import client, config
-import sys
 import argparse
 from rich.table import Table
 from rich.console import Console
@@ -87,33 +86,39 @@ def process_namespace(api_instance, namespace):
     return format_output(namespace, diff)
 
 
-def main(namespace):
+def main(namespaces=None, exclude_list=None):
     # Load the Kubernetes configuration
     config.load_kube_config()
 
     # Create Kubernetes API client
     api_instance = client.CoreV1Api()
 
-    if namespace:
+    if namespaces:
+        if exclude_list:
+            print("Error: --exclude flag cannot be used together with -n/--namespace flag.")
+            return
+
+    if namespaces is None:
+        namespaces = []
+        namespace_list = api_instance.list_namespace()
+        for ns in namespace_list.items:
+            if exclude_list and ns.metadata.name in exclude_list:
+                continue
+            namespaces.append(ns.metadata.name)
+
+    for namespace in namespaces:
         # Process a specific namespace
         output = process_namespace(api_instance, namespace)
         console = Console()
         console.print(output)
-    else:
-        # Process all namespaces
-        namespaces = api_instance.list_namespace()
-
-        for ns in namespaces.items:
-            namespace_name = ns.metadata.name
-            output = process_namespace(api_instance, namespace_name)
-            console = Console()
-            console.print(output)
-            console.print("\n")
+        console.print("\n")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Identify orphaned ConfigMaps in a Kubernetes namespace.")
-    parser.add_argument("-n", "--namespace", help="Specify the namespace to scan for orphaned ConfigMaps.")
+    parser.add_argument("-n", "--namespace", nargs="+", help="Specify one or more namespaces to scan for orphaned"
+                                                             " ConfigMaps.")
+    parser.add_argument("--exclude", nargs="+", help="Specify namespaces to exclude from scanning.")
     args = parser.parse_args()
 
-    main(args.namespace)
+    main(args.namespace, args.exclude)

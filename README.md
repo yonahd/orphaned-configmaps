@@ -25,18 +25,24 @@ Before running the script, make sure you have the following prerequisites instal
    pip install -r requirements.txt
    ```
 
-## Usage
+### Usage Examples
 
-To get unused configmaps in the whole cluster, execute the following command:
-   ```shell
-   python orphaned_configmaps.py 
-   ```
+- To scan all namespaces for orphaned ConfigMaps:
+    ```
+    python orphaned_configmaps.py
+    ```
 
-To get unused configmaps in a single namespace, execute the following command:
-   ```shell
-   python orphaned_configmaps.py -n <namespace>
-   ```
-Replace <namespace> with the name of the Kubernetes namespace you want to scan for orphaned ConfigMaps. Make sure you have the necessary permissions to access the Kubernetes cluster.
+- To specify one or more namespaces to scan for orphaned ConfigMaps:
+    ```
+    python orphaned_configmaps.py -n namespace1 namespace2
+    ```
+
+- To exclude specific namespaces from the scan:
+    ```
+    python orphaned_configmaps.py --exclude exclude_ns1 exclude_ns2
+    ```
+
+    Note: The `--exclude` flag cannot be used together with the `-n/--namespace` flag.
 
 
 The script will display a table of orphaned ConfigMaps, if any are found.
