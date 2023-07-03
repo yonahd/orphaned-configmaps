@@ -59,5 +59,22 @@ The script will display a table of orphaned ConfigMaps, if any are found.
 └────┴─────────────────────────────────────────────────────────────────┘
   ```
 
+## Exceptions File
+The exception file (exceptions.txt) is a file that allows you to define exceptions to the orphaned ConfigMap detection. Sometimes, not every ConfigMap exists for a direct pod reference. 
+
+For example, a ConfigMap like aws-auth in the kube-system namespace is necessary for configuring AWS authentication and is actively monitored by a Kubernetes-native application at runtime. Similarly, ConfigMaps can be used to pass data between different parts of your infrastructure.
+
+The exception file follows the format:
+
+  ```
+config_map_name, namespace, explanation
+  ```
+- config_map_name: The name of the ConfigMap that is an exception.
+- namespace: The namespace where the exception applies.
+- explanation: An explanation or description of why this ConfigMap is considered an exception.
+
+You can add exceptions to the exceptions.txt file to prevent the script from flagging those ConfigMaps as orphaned.
+
+
 ## Caveat 
 The script looks at pods and containers, so if you are consuming it in a deployment that is scaled to 0 it will not be detected. 
