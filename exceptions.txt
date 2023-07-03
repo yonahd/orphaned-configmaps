@@ -1,0 +1,3 @@
+my-configmap,my-namespace,Exception: Custom exception explanation
+aws-auth,kube-system,Exception: Contains critical cluster configuration
+
