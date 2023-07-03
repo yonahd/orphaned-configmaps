@@ -2,6 +2,34 @@ from kubernetes import client, config
 import argparse
 from rich.table import Table
 from rich.console import Console
+import os
+
+EXCEPTIONS_FILE = "exceptions.txt"
+
+
+def load_exceptions():
+    exceptions = []
+    file_path = os.path.join(os.path.dirname(__file__), EXCEPTIONS_FILE)
+    with open(file_path, "r") as file:
+        for line in file:
+            line = line.strip()
+            if line and not line.startswith("#"):
+                parts = line.split(",")
+                if len(parts) >= 3:
+                    config_map_name = parts[0].strip()
+                    namespace = parts[1].strip()
+                    explanation = ",".join(parts[2:]).strip()
+                    exceptions.append((config_map_name, namespace, explanation))
+    return exceptions
+
+
+def get_namespace_exceptions(namespace, exceptions):
+    namespace_exceptions = []
+    for exception in exceptions:
+        config_map_name, exception_namespace, explanation = exception
+        if exception_namespace == namespace:
+            namespace_exceptions.append(config_map_name)
+    return namespace_exceptions
 
 
 def retrieve_volumes_and_env(api_instance, namespace):
@@ -64,7 +92,7 @@ def format_output(namespace, configmap_names):
     return table
 
 
-def process_namespace(api_instance, namespace):
+def process_namespace(api_instance, namespace, exceptions):
     # Retrieve volumes and environment information for the namespace
     volumesCM, volumesProjectedCM, envCM, envFromCM, envFromContainerCM = retrieve_volumes_and_env(api_instance, namespace)
 
@@ -79,7 +107,7 @@ def process_namespace(api_instance, namespace):
     configmap_names = retrieve_configmap_names(api_instance, namespace)
 
     # Calculate the difference between the two sets of names
-    used_configmaps = volumesCM + volumesProjectedCM + envCM + envFromCM + envFromContainerCM
+    used_configmaps = volumesCM + volumesProjectedCM + envCM + envFromCM + envFromContainerCM + exceptions
     diff = calculate_difference(used_configmaps, configmap_names)
 
     # Format and return the output for the namespace
@@ -92,6 +120,8 @@ def main(namespaces=None, exclude_list=None):
 
     # Create Kubernetes API client
     api_instance = client.CoreV1Api()
+
+    exceptions = load_exceptions()
 
     if namespaces:
         if exclude_list:
@@ -108,7 +138,8 @@ def main(namespaces=None, exclude_list=None):
 
     for namespace in namespaces:
         # Process a specific namespace
-        output = process_namespace(api_instance, namespace)
+        namespaced_exceptions = get_namespace_exceptions(namespace, exceptions)
+        output = process_namespace(api_instance, namespace, namespaced_exceptions)
         console = Console()
         console.print(output)
         console.print("\n")
