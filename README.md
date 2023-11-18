@@ -14,7 +14,7 @@ Before running the script, make sure you have the following prerequisites instal
 1. Clone this repository to your local machine:
 
    ```shell
-   git clone https://github.com/your-username/orphaned-configmaps.git
+   git clone https://github.com/yonahd/orphaned-configmaps.git
    ```
 2. Change into the repository directory:
    ```shell
@@ -29,17 +29,17 @@ Before running the script, make sure you have the following prerequisites instal
 
 - To scan all namespaces for orphaned ConfigMaps:
     ```
-    python orphaned_configmaps.py
+    python get-orphaned-configmaps.py
     ```
 
 - To specify one or more namespaces to scan for orphaned ConfigMaps:
     ```
-    python orphaned_configmaps.py -n namespace1 namespace2
+    python get-orphaned-configmaps.py -n namespace1 namespace2
     ```
 
 - To exclude specific namespaces from the scan:
     ```
-    python orphaned_configmaps.py --exclude exclude_ns1 exclude_ns2
+    python get-orphaned-configmaps.py --exclude exclude_ns1 exclude_ns2
     ```
 
     Note: The `--exclude` flag cannot be used together with the `-n/--namespace` flag.
