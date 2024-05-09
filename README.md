@@ -2,6 +2,12 @@
 
 This repository contains a script to identify orphaned ConfigMaps in a Kubernetes namespace. Orphaned ConfigMaps are those that are not referenced by any active Pods or containers within the namespace.
 
+## Deprecation notice 
+
+This repo is deprecated for https://github.com/yonahd/kor
+
+Kor covers finding unused configmaps and many other resource. It also contains many other features and enhancements.
+
 ## Prerequisites
 
 Before running the script, make sure you have the following prerequisites installed:
